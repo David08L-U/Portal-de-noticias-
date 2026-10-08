@@ -3,8 +3,8 @@
  * Script principal: Búsqueda y consumo de GNews API
  */
 
-// Sección para asignar la API Key de GNews
-const API_KEY = "651175aa40c3197ea9b6ed84925c0a73";
+// La API Key se enlaza directamente desde config.js (archivo excluido en Git)
+const apiKey = typeof API_KEY !== "undefined" ? API_KEY : "";
 
 // Imagen de respaldo en caso de que una noticia no incluya imagen
 const DEFAULT_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcatcyEP8Y0yogCUldXyIEQEAnnKSbYWpQawNjgpmz7g&s=10";
@@ -54,7 +54,7 @@ async function cargarNoticiasDestacadas() {
     mostrarEstadoCargando("las noticias más recientes y destacadas");
 
     // Endpoint de titulares principales en español (top-headlines)
-    const url = `https://gnews.io/api/v4/top-headlines?lang=es&max=10&apikey=${API_KEY}`;
+    const url = `https://gnews.io/api/v4/top-headlines?lang=es&max=10&apikey=${apiKey}`;
 
     try {
         const respuesta = await fetch(url);
@@ -103,7 +103,7 @@ async function buscarNoticias() {
     mostrarEstadoCargando(tema);
 
     // Construcción de la URL de búsqueda en GNews
-    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(tema)}&lang=es&max=10&apikey=${API_KEY}`;
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(tema)}&lang=es&max=10&apikey=${apiKey}`;
 
     try {
         const respuesta = await fetch(url);
