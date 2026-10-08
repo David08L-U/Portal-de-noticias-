@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOD NEWS | Portal de Noticias</title>
+    <!-- Tipografía de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Encabezado principal (Header) -->
+    <header class="main-header">
+        <div class="top-bar">
+            <span class="edition-date" id="editionDate">Edición Digital &bull; Noticias globales en tiempo real</span>
+            <span class="motto">"La verdad revelada al instante"</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-branding">
+                <h1 class="logo-title">GOD NEWS</h1>
+                <p class="logo-subtitle">EL PORTAL DEFINITIVO DE NOTICIAS GLOBALES</p>
+            </div>
+        </div>
+
+        <nav class="categories-nav">
+            <ul id="categoriesList">
+                <li><button type="button" class="category-btn active" data-category="">Todas</button></li>
+                <li><button type="button" class="category-btn" data-category="Tecnología">Tecnología</button></li>
+                <li><button type="button" class="category-btn" data-category="Inteligencia artificial">IA</button></li>
+                <li><button type="button" class="category-btn" data-category="Economía">Economía</button></li>
+                <li><button type="button" class="category-btn" data-category="Ciencia">Ciencia</button></li>
+                <li><button type="button" class="category-btn" data-category="Deportes">Deportes</button></li>
+                <li><button type="button" class="category-btn" data-category="Mundo">Mundo</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Sección principal: Buscador y resultados -->
+    <main class="main-container">
+        <!-- Buscador de noticias -->
+        <section class="search-section" aria-label="Buscador de noticias">
+            <form class="search-form" id="searchForm">
+                <div class="search-input-wrapper">
+                    <!-- Icono SVG de búsqueda -->
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="busqueda" 
+                        name="query" 
+                        placeholder="Escribe un tema para buscar (ej. Inteligencia artificial, Deportes, Ciencia)..."
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <button type="submit" class="search-button" id="searchBtn">
+                    <span>Buscar noticias</span>
+                    <svg class="btn-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </form>
+        </section>
+
+        <!-- Área vacía donde aparecerán los resultados y estados -->
+        <section class="results-container-wrapper">
+            <div id="resultsArea" class="results-area" aria-live="polite">
+                <!-- Estado Inicial por defecto cargado vía HTML/JS -->
+                <div class="state-card state-initial">
+                    <div class="state-icon-wrapper info-tone">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>
+                            <path d="M18 14h-8"></path>
+                            <path d="M15 18h-5"></path>
+                            <path d="M10 6h8v4h-8V6Z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="state-title">Área de Resultados de GOD NEWS</h2>
+                    <p class="state-description">
+                        Escribe un tema de tu interés en la barra de búsqueda (por ejemplo: 
+                        <em>"Inteligencia artificial"</em>) y presiona <strong>"Buscar noticias"</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página (Footer) -->
+    <footer class="main-footer">
+        <div class="footer-inner">
+            <p>&copy; 2026 <strong>GOD NEWS</strong>. Portal de noticias en tiempo real con GNews API.</p>
+        </div>
+    </footer>
+
+    <!-- Archivo JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
