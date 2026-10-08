@@ -3,11 +3,11 @@
  * Script principal: Búsqueda y consumo de GNews API
  */
 
-// Sección para asignar tu API Key de GNews
-const API_KEY = "TU_API_KEY";
+// Sección para asignar la API Key de GNews
+const API_KEY = "651175aa40c3197ea9b6ed84925c0a73";
 
 // Imagen de respaldo en caso de que una noticia no incluya imagen
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80";
+const DEFAULT_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcatcyEP8Y0yogCUldXyIEQEAnnKSbYWpQawNjgpmz7g&s=10";
 
 // Elementos del DOM
 const searchForm = document.getElementById("searchForm");
