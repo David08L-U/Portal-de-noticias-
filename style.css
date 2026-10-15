@@ -771,3 +771,46 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* 9. Paginación */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+    animation: fadeIn 0.4s ease-in-out forwards;
+}
+
+.load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 32px;
+    background-color: transparent;
+    color: var(--color-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.load-more-btn:hover {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-arrow-down {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+}
+
+.load-more-btn:hover .btn-arrow-down {
+    transform: translateY(3px);
+}

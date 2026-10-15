@@ -6,14 +6,21 @@
 // La API Key se enlaza directamente desde config.js (archivo excluido en Git)
 const apiKey = typeof API_KEY !== "undefined" ? API_KEY : "";
 
-// Imagen de respaldo en caso de que una noticia no incluya imagen
-const DEFAULT_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcatcyEP8Y0yogCUldXyIEQEAnnKSbYWpQawNjgpmz7g&s=10";
+// Imagen de respaldo local
+const DEFAULT_IMAGE = "Imagen/newspaper.jpg";
+
+// Variables de paginación
+let paginaActual = 1;
+let tipoBusquedaActual = "destacadas";
+let terminoBusquedaActual = "";
 
 // Elementos del DOM
 const searchForm = document.getElementById("searchForm");
 const busquedaInput = document.getElementById("busqueda");
 const resultsArea = document.getElementById("resultsArea");
 const categoryButtons = document.querySelectorAll(".category-btn");
+const paginationContainer = document.getElementById("paginationContainer");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
 
 // Configuración inicial de eventos
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Escuchar el envío del formulario de búsqueda
     searchForm.addEventListener("submit", (event) => {
         event.preventDefault();
+        paginaActual = 1;
         buscarNoticias();
     });
 
@@ -34,6 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // Marcar botón activo
             categoryButtons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
+            
+            paginaActual = 1; // Reiniciar paginación al cambiar de categoría
 
             // Si es "Todas" (o no tiene categoría definida), cargar noticias destacadas
             if (!categoria || categoria.toLowerCase() === "todas") {
@@ -45,16 +55,45 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // Evento para el botón "Cargar más"
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener("click", () => {
+            paginaActual++;
+            
+            // Indicador visual de carga
+            const textoOriginal = loadMoreBtn.innerHTML;
+            loadMoreBtn.innerHTML = '<span>Cargando...</span>';
+            loadMoreBtn.disabled = true;
+
+            if (tipoBusquedaActual === "destacadas") {
+                cargarNoticiasDestacadas(true).finally(() => {
+                    loadMoreBtn.innerHTML = textoOriginal;
+                    loadMoreBtn.disabled = false;
+                });
+            } else {
+                buscarNoticias(true).finally(() => {
+                    loadMoreBtn.innerHTML = textoOriginal;
+                    loadMoreBtn.disabled = false;
+                });
+            }
+        });
+    }
 });
 
 /**
  * Consulta y muestra las noticias más recientes y destacadas (sección "Todas")
  */
-async function cargarNoticiasDestacadas() {
-    mostrarEstadoCargando("las noticias más recientes y destacadas");
+async function cargarNoticiasDestacadas(isAppending = false) {
+    if (!isAppending) {
+        mostrarEstadoCargando("las noticias más recientes y destacadas");
+        tipoBusquedaActual = "destacadas";
+        terminoBusquedaActual = "";
+        if (paginationContainer) paginationContainer.style.display = "none";
+    }
 
-    // Endpoint de titulares principales en español (top-headlines)
-    const url = `https://gnews.io/api/v4/top-headlines?lang=es&max=10&apikey=${apiKey}`;
+    // Endpoint de titulares principales en español (top-headlines) con paginación
+    const url = `https://gnews.io/api/v4/top-headlines?lang=es&max=10&page=${paginaActual}&apikey=${apiKey}`;
 
     try {
         const respuesta = await fetch(url);
@@ -67,43 +106,56 @@ async function cargarNoticiasDestacadas() {
         console.log("Noticias destacadas:", datos);
 
         if (!datos.articles || datos.articles.length === 0) {
-            mostrarEstadoSinResultados("noticias destacadas");
+            if (!isAppending) mostrarEstadoSinResultados("noticias destacadas");
+            if (paginationContainer) paginationContainer.style.display = "none";
         } else {
-            pintarNoticias(datos.articles, "Noticias destacadas y recientes");
+            pintarNoticias(datos.articles, "Noticias destacadas y recientes", isAppending);
+            if (paginationContainer) {
+                paginationContainer.style.display = datos.articles.length >= 10 ? "flex" : "none";
+            }
         }
 
     } catch (error) {
         console.error(error);
-        mostrarEstadoError(
-            "No se pudieron obtener las noticias en este momento. Por favor, verifica tu conexión a internet o intenta nuevamente más tarde.",
-            cargarNoticiasDestacadas
-        );
+        if (!isAppending) {
+            mostrarEstadoError(
+                "No se pudieron obtener las noticias en este momento. Por favor, verifica tu conexión a internet o intenta nuevamente más tarde.",
+                cargarNoticiasDestacadas
+            );
+        } else {
+            alert("No se pudieron cargar más noticias. Verifica tu conexión.");
+        }
     }
 }
 
 /**
  * Función principal para consultar noticias a la API de GNews por un tema específico
  */
-async function buscarNoticias() {
+async function buscarNoticias(isAppending = false) {
     const tema = document.getElementById("busqueda").value.trim();
 
     // Si el campo está vacío, redirigir a las noticias destacadas
     if (!tema) {
-        mostrarEstadoError("Por favor, escribe un tema o palabra clave en el buscador antes de continuar.");
+        if (!isAppending) mostrarEstadoError("Por favor, escribe un tema o palabra clave en el buscador antes de continuar.");
         return;
     }
 
-    // Desmarcar categoría activa si la búsqueda fue escrita manualmente
-    const categoriaActiva = Array.from(categoryButtons).find(btn => btn.getAttribute("data-category") === tema);
-    if (!categoriaActiva) {
-        categoryButtons.forEach(b => b.classList.remove("active"));
+    if (!isAppending) {
+        // Desmarcar categoría activa si la búsqueda fue escrita manualmente
+        const categoriaActiva = Array.from(categoryButtons).find(btn => btn.getAttribute("data-category") === tema);
+        if (!categoriaActiva) {
+            categoryButtons.forEach(b => b.classList.remove("active"));
+        }
+
+        // Mostrar estado temporal de carga
+        mostrarEstadoCargando(tema);
+        tipoBusquedaActual = "busqueda";
+        terminoBusquedaActual = tema;
+        if (paginationContainer) paginationContainer.style.display = "none";
     }
 
-    // Mostrar estado temporal de carga
-    mostrarEstadoCargando(tema);
-
-    // Construcción de la URL de búsqueda en GNews
-    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(tema)}&lang=es&max=10&apikey=${apiKey}`;
+    // Construcción de la URL de búsqueda en GNews con paginación
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(tema)}&lang=es&max=10&page=${paginaActual}&apikey=${apiKey}`;
 
     try {
         const respuesta = await fetch(url);
@@ -117,17 +169,25 @@ async function buscarNoticias() {
 
         // Validar si existen noticias en la respuesta
         if (!datos.articles || datos.articles.length === 0) {
-            mostrarEstadoSinResultados(tema);
+            if (!isAppending) mostrarEstadoSinResultados(tema);
+            if (paginationContainer) paginationContainer.style.display = "none";
         } else {
-            pintarNoticias(datos.articles, tema);
+            pintarNoticias(datos.articles, tema, isAppending);
+            if (paginationContainer) {
+                paginationContainer.style.display = datos.articles.length >= 10 ? "flex" : "none";
+            }
         }
 
     } catch (error) {
         console.error(error);
-        mostrarEstadoError(
-            "No se pudieron obtener las noticias en este momento. Por favor, verifica tu conexión a internet o intenta nuevamente más tarde.",
-            buscarNoticias
-        );
+        if (!isAppending) {
+            mostrarEstadoError(
+                "No se pudieron obtener las noticias en este momento. Por favor, verifica tu conexión a internet o intenta nuevamente más tarde.",
+                buscarNoticias
+            );
+        } else {
+            alert("No se pudieron cargar más noticias. Verifica tu conexión.");
+        }
     }
 }
 
@@ -135,20 +195,15 @@ async function buscarNoticias() {
  * Pinta los datos de las noticias en pantalla mediante tarjetas visuales
  * @param {Array} articles Lista de noticias devuelta por la API
  * @param {string} tema Palabra clave o título de la sección
+ * @param {boolean} isAppending Indica si debemos añadir a los resultados existentes
  */
-function pintarNoticias(articles, tema) {
+function pintarNoticias(articles, tema, isAppending = false) {
     const esDestacadas = tema === "Noticias destacadas y recientes";
     const tituloSeccion = esDestacadas 
         ? "Noticias destacadas y recientes" 
         : `Resultados para: <em>"${escapeHTML(tema)}"</em>`;
 
-    let html = `
-        <div class="results-header-info">
-            <h3>${tituloSeccion}</h3>
-            <span class="results-count">${articles.length} noticias disponibles</span>
-        </div>
-        <div class="news-grid">
-    `;
+    let cardsHtml = "";
 
     articles.forEach(noticia => {
         const imagen = noticia.image || DEFAULT_IMAGE;
@@ -158,7 +213,7 @@ function pintarNoticias(articles, tema) {
         const fechaPublicacion = formatearFecha(noticia.publishedAt);
         const urlNoticia = noticia.url || "#";
 
-        html += `
+        cardsHtml += `
             <article class="news-card">
                 <!-- Imagen obligatoria -->
                 <div class="news-image-wrapper">
@@ -212,8 +267,28 @@ function pintarNoticias(articles, tema) {
         `;
     });
 
-    html += `</div>`;
-    resultsArea.innerHTML = html;
+    if (isAppending) {
+        const gridContainer = resultsArea.querySelector('.news-grid');
+        if (gridContainer) {
+            gridContainer.insertAdjacentHTML('beforeend', cardsHtml);
+            const countSpan = resultsArea.querySelector('.results-count');
+            if (countSpan) {
+                const currentCount = gridContainer.querySelectorAll('.news-card').length;
+                countSpan.textContent = `${currentCount} noticias disponibles`;
+            }
+        }
+    } else {
+        let html = `
+            <div class="results-header-info">
+                <h3>${tituloSeccion}</h3>
+                <span class="results-count">${articles.length} noticias disponibles</span>
+            </div>
+            <div class="news-grid">
+                ${cardsHtml}
+            </div>
+        `;
+        resultsArea.innerHTML = html;
+    }
 }
 
 /**
